@@ -11,7 +11,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Home, History, LogOut, Bot, TrendingUp } from 'lucide-react';
+import { Home, History, LogOut, Bot, TrendingUp, User as UserIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -19,6 +19,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { ThemeToggle } from '../theme-toggle';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+
 
 function SidebarItems({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname();
@@ -131,20 +134,67 @@ function DashboardLayoutContent({
     children: React.ReactNode;
 }) {
   const { setOpenMobile } = useSidebar();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  }
+  
   return (
+    <TooltipProvider>
     <div className="flex h-screen w-full bg-muted/30">
-      <Sidebar className="border-r" collapsible="offcanvas">
+      <Sidebar className="hidden md:flex border-r" collapsible="icon">
         <SidebarItems onLinkClick={() => setOpenMobile(false)} />
       </Sidebar>
       <div className="flex flex-col flex-1 overflow-hidden">
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
-          <SidebarTrigger />
+        <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
+          <div className="flex items-center gap-2">
+              <Bot className="h-6 w-6 text-primary"/>
+              <span className="font-bold">QuizWhiz AI</span>
+          </div>
+          <nav className="flex items-center gap-1">
+              <Tooltip>
+                  <TooltipTrigger asChild>
+                      <Button variant={pathname === '/dashboard' ? 'secondary' : 'ghost'} size="icon" onClick={() => handleNavigation('/dashboard')}>
+                          <Home className="h-5 w-5" />
+                      </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Dashboard</TooltipContent>
+              </Tooltip>
+               <Tooltip>
+                  <TooltipTrigger asChild>
+                      <Button variant={pathname === '/dashboard/history' ? 'secondary' : 'ghost'} size="icon" onClick={() => handleNavigation('/dashboard/history')}>
+                          <History className="h-5 w-5" />
+                      </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>History</TooltipContent>
+              </Tooltip>
+               <Tooltip>
+                  <TooltipTrigger asChild>
+                      <Button variant={pathname === '/dashboard/stats' ? 'secondary' : 'ghost'} size="icon" onClick={() => handleNavigation('/dashboard/stats')}>
+                          <TrendingUp className="h-5 w-5" />
+                      </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Stats</TooltipContent>
+              </Tooltip>
+              <SidebarTrigger asChild>
+                <Button variant="ghost" size="icon">
+                    <UserIcon className="h-5 w-5"/>
+                </Button>
+              </SidebarTrigger>
+          </nav>
         </header>
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
+      {/* Mobile sidebar content, which is now separate for profile/logout */}
+      <Sidebar collapsible="offcanvas">
+           <SidebarItems onLinkClick={() => setOpenMobile(false)} />
+      </Sidebar>
     </div>
+    </TooltipProvider>
   );
 }
 
