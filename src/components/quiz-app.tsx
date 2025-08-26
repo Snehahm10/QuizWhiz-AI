@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useTransition, useCallback, useEffect } from 'react';
+import { useState, useTransition, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { type QuizSettings } from '@/lib/constants';
 import { generateMcqAction, type Mcq } from '@/app/quiz/actions';
+import { useAuth } from '@/hooks/use-auth';
 
 import QuizSettingsComponent from './quiz-settings';
 import QuizCard from './quiz-card';
 import QuizSkeleton from './quiz-skeleton';
 import QuizResults from './quiz-results';
-import { Progress } from './ui/progress';
 
 const TOTAL_QUESTIONS = 10;
 
@@ -35,6 +35,7 @@ export default function QuizApp() {
   
   const [isLoading, startTransition] = useTransition();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleStartQuiz = useCallback(() => {
     setQuizState('loading');
@@ -67,32 +68,35 @@ export default function QuizApp() {
   }, [settings, toast]);
   
   const handleFinishQuiz = useCallback(() => {
+    if (!user) return; // Should not happen if called from the quiz
+    
     const finalScore = score;
     const today = new Date().toISOString();
+    const userId = user.uid;
 
     // --- Update History ---
+    const historyKey = `quizHistory_${userId}`;
     const newHistoryItem = {
       date: today,
       subject: settings.subject,
       score: finalScore,
       total: TOTAL_QUESTIONS,
     };
-    const storedHistory = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+    const storedHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
     const newHistory = [newHistoryItem, ...storedHistory];
-    localStorage.setItem('quizHistory', JSON.stringify(newHistory));
-
+    localStorage.setItem(historyKey, JSON.stringify(newHistory));
 
     // --- Update Weekly Progress ---
+    const weeklyKey = `weeklyProgress_${userId}`;
     const newScoreData: ScoreData = { score: finalScore * 10, date: today };
-    const storedWeekly = JSON.parse(localStorage.getItem('weeklyProgress') || '[]') as ScoreData[];
+    const storedWeekly = JSON.parse(localStorage.getItem(weeklyKey) || '[]') as ScoreData[];
     const updatedWeekly = [...storedWeekly, newScoreData];
-    localStorage.setItem('weeklyProgress', JSON.stringify(updatedWeekly));
+    localStorage.setItem(weeklyKey, JSON.stringify(updatedWeekly));
     
-
     // --- Update Leaderboard ---
-    // In a real app, user data would come from auth
-    const currentUser = { name: "You", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" };
-    const storedLeaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+    const leaderboardKey = `leaderboard_${userId}`;
+    const currentUser = { name: user.displayName || user.email?.split('@')[0] || 'Anonymous', avatar: user.photoURL };
+    const storedLeaderboard = JSON.parse(localStorage.getItem(leaderboardKey) || '[]');
     
     const userIndex = storedLeaderboard.findIndex((u: any) => u.name === currentUser.name);
     if (userIndex > -1) {
@@ -101,11 +105,10 @@ export default function QuizApp() {
         storedLeaderboard.push({ ...currentUser, score: finalScore * 10 });
     }
     const sortedLeaderboard = storedLeaderboard.sort((a: any, b: any) => b.score - a.score).map((u: any, i: number) => ({ ...u, rank: i + 1 }));
-
-    localStorage.setItem('leaderboard', JSON.stringify(sortedLeaderboard));
+    localStorage.setItem(leaderboardKey, JSON.stringify(sortedLeaderboard));
     
     setQuizState('completed');
-  }, [score, settings.subject]);
+  }, [score, settings.subject, user]);
 
 
   const handleNextQuestion = useCallback(() => {
@@ -164,7 +167,6 @@ export default function QuizApp() {
               questionNumber={currentQuestionIndex + 1}
               totalQuestions={TOTAL_QUESTIONS}
               score={score}
-              progress={progress}
             />
           </div>
         </>

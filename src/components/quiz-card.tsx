@@ -22,7 +22,6 @@ interface QuizCardProps {
   questionNumber: number;
   totalQuestions: number;
   score: number;
-  progress: number;
 }
 
 const QUESTION_TIME_LIMIT = 30; // 30 seconds
@@ -38,10 +37,10 @@ export default function QuizCard({
     questionNumber,
     totalQuestions,
     score,
-    progress,
 }: QuizCardProps) {
   const isCorrect = selectedAnswer === mcq.correctAnswerIndex;
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_LIMIT);
+  const progress = (questionNumber / totalQuestions) * 100;
 
   useEffect(() => {
     setTimeLeft(QUESTION_TIME_LIMIT); // Reset timer for each new question
@@ -99,16 +98,16 @@ export default function QuizCard({
                   htmlFor={`option-${index}`}
                   className={cn(
                     "flex items-center p-4 rounded-lg border-2 transition-all cursor-pointer text-base",
-                    "hover:border-primary/50",
+                    "hover:border-primary/50 text-foreground",
                     isSelected && !isSubmitted && "border-primary bg-primary/10 ring-2 ring-primary/50",
-                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-success font-semibold ring-2 ring-success/50",
-                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-destructive font-semibold ring-2 ring-destructive/50",
+                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-success-foreground font-semibold ring-2 ring-success/50",
+                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-destructive-foreground font-semibold ring-2 ring-destructive/50",
                     isSubmitted && !isSelected && "opacity-60 hover:opacity-80"
                   )}
                 >
                   <span className="flex-1">{option}</span>
-                  {isSubmitted && isCorrectOption && <CheckCircle2 className="h-5 w-5 text-success ml-4" />}
-                  {isSubmitted && isSelected && !isCorrectOption && <XCircle className="h-5 w-5 text-destructive ml-4" />}
+                  {isSubmitted && isCorrectOption && <CheckCircle2 className="h-5 w-5 text-success-foreground ml-4" />}
+                  {isSubmitted && isSelected && !isCorrectOption && <XCircle className="h-5 w-5 text-destructive-foreground ml-4" />}
                 </Label>
               </div>
             );

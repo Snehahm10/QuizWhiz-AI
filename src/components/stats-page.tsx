@@ -4,20 +4,24 @@ import { useState, useEffect } from 'react';
 import Leaderboard from './leaderboard';
 import WeeklyProgressChart from './weekly-progress-chart';
 import { ScoreData } from './quiz-app';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function StatsPage() {
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [weeklyData, setWeeklyData] = useState<ScoreData[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsMounted(true);
-    const storedLeaderboard = localStorage.getItem('leaderboard');
-    if (storedLeaderboard) setLeaderboardData(JSON.parse(storedLeaderboard));
-    
-    const storedWeekly = localStorage.getItem('weeklyProgress');
-    if (storedWeekly) setWeeklyData(JSON.parse(storedWeekly));
-  }, []);
+    if (user) {
+        const storedLeaderboard = localStorage.getItem(`leaderboard_${user.uid}`);
+        if (storedLeaderboard) setLeaderboardData(JSON.parse(storedLeaderboard));
+        
+        const storedWeekly = localStorage.getItem(`weeklyProgress_${user.uid}`);
+        if (storedWeekly) setWeeklyData(JSON.parse(storedWeekly));
+    }
+  }, [user]);
 
   if (!isMounted) {
     // Render a loading state or skeletons

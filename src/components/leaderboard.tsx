@@ -18,7 +18,7 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ data }: LeaderboardProps) {
-    const leaderboardData = data && data.length > 0 ? data : defaultLeaderboardData;
+  const leaderboardData = data && data.length > 0 ? data : defaultLeaderboardData;
   return (
     <Card>
       <CardHeader>
@@ -28,21 +28,27 @@ export default function Leaderboard({ data }: LeaderboardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-4">
-          {leaderboardData.slice(0, 5).map((user) => (
-            <li key={user.rank} className="flex items-center justify-between transition-transform hover:scale-105">
-              <div className="flex items-center gap-4">
-                <span className="font-bold text-lg w-6 text-center">{user.rank}</span>
-                <Avatar>
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{user.name}</span>
-              </div>
-              <span className="font-bold text-primary">{user.score} pts</span>
-            </li>
-          ))}
-        </ul>
+        {leaderboardData.length > 0 ? (
+          <ul className="space-y-4">
+            {leaderboardData.slice(0, 5).map((user) => (
+              <li key={user.rank} className="flex items-center justify-between transition-transform hover:scale-105">
+                <div className="flex items-center gap-4">
+                  <span className="font-bold text-lg w-6 text-center">{user.rank}</span>
+                  <Avatar>
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium">{user.name}</span>
+                </div>
+                <span className="font-bold text-primary">{user.score} pts</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center text-muted-foreground h-24 flex items-center justify-center">
+            No leaderboard data yet. Compete to get on the board!
+          </div>
+        )}
       </CardContent>
     </Card>
   );

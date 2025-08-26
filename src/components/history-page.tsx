@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { BookCopy } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 interface QuizResult {
   date: string;
@@ -16,14 +17,17 @@ interface QuizResult {
 export default function HistoryPage() {
   const [history, setHistory] = useState<QuizResult[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsMounted(true);
-    const storedHistory = localStorage.getItem('quizHistory');
-    if (storedHistory) {
-      setHistory(JSON.parse(storedHistory));
+    if (user) {
+        const storedHistory = localStorage.getItem(`quizHistory_${user.uid}`);
+        if (storedHistory) {
+            setHistory(JSON.parse(storedHistory));
+        }
     }
-  }, []);
+  }, [user]);
 
   const getBadgeVariant = (score: number, total: number) => {
     const percentage = (score / total) * 100;
