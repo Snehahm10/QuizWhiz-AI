@@ -18,6 +18,7 @@ type QuizState = 'not-started' | 'loading' | 'in-progress' | 'completed';
 export interface ScoreData {
   score: number;
   date: string; // ISO string
+  user: string;
 }
 
 export default function QuizApp() {
@@ -73,8 +74,11 @@ export default function QuizApp() {
     const finalScore = score;
     const today = new Date().toISOString();
     const userId = user.uid;
+    const userName = user.displayName || user.email?.split('@')[0] || 'Anonymous';
+    const userAvatar = user.photoURL || `https://i.pravatar.cc/150?u=${userId}`;
 
-    // --- Update History ---
+
+    // --- Update History (per-user) ---
     const historyKey = `quizHistory_${userId}`;
     const newHistoryItem = {
       date: today,
@@ -86,23 +90,22 @@ export default function QuizApp() {
     const newHistory = [newHistoryItem, ...storedHistory];
     localStorage.setItem(historyKey, JSON.stringify(newHistory));
 
-    // --- Update Weekly Progress ---
-    const weeklyKey = `weeklyProgress_${userId}`;
-    const newScoreData: ScoreData = { score: finalScore * 10, date: today };
+    // --- Update Weekly Progress (Global) ---
+    const weeklyKey = `weeklyProgress_global`;
+    const newScoreData: ScoreData = { score: finalScore * 10, date: today, user: userName };
     const storedWeekly = JSON.parse(localStorage.getItem(weeklyKey) || '[]') as ScoreData[];
     const updatedWeekly = [...storedWeekly, newScoreData];
     localStorage.setItem(weeklyKey, JSON.stringify(updatedWeekly));
     
-    // --- Update Leaderboard ---
-    const leaderboardKey = `leaderboard_${userId}`;
-    const currentUser = { name: user.displayName || user.email?.split('@')[0] || 'Anonymous', avatar: user.photoURL };
+    // --- Update Leaderboard (Global) ---
+    const leaderboardKey = `leaderboard_global`;
     const storedLeaderboard = JSON.parse(localStorage.getItem(leaderboardKey) || '[]');
     
-    const userIndex = storedLeaderboard.findIndex((u: any) => u.name === currentUser.name);
+    const userIndex = storedLeaderboard.findIndex((u: any) => u.name === userName);
     if (userIndex > -1) {
         storedLeaderboard[userIndex].score += finalScore * 10;
     } else {
-        storedLeaderboard.push({ ...currentUser, score: finalScore * 10 });
+        storedLeaderboard.push({ name: userName, avatar: userAvatar, score: finalScore * 10 });
     }
     const sortedLeaderboard = storedLeaderboard.sort((a: any, b: any) => b.score - a.score).map((u: any, i: number) => ({ ...u, rank: i + 1 }));
     localStorage.setItem(leaderboardKey, JSON.stringify(sortedLeaderboard));

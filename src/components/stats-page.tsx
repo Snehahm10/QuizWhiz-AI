@@ -14,13 +14,22 @@ export default function StatsPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    if (user) {
-        const storedLeaderboard = localStorage.getItem(`leaderboard_${user.uid}`);
-        if (storedLeaderboard) setLeaderboardData(JSON.parse(storedLeaderboard));
-        
-        const storedWeekly = localStorage.getItem(`weeklyProgress_${user.uid}`);
-        if (storedWeekly) setWeeklyData(JSON.parse(storedWeekly));
+    // We can read the global data without waiting for the user object
+    const storedLeaderboard = localStorage.getItem(`leaderboard_global`);
+    if (storedLeaderboard) {
+        const allUsers = JSON.parse(storedLeaderboard);
+        if (user) {
+            // Add isCurrentUser flag for highlighting
+            const currentUser = user.displayName || user.email?.split('@')[0];
+            const dataWithCurrentUser = allUsers.map((u: any) => ({ ...u, isCurrentUser: u.name === currentUser }));
+            setLeaderboardData(dataWithCurrentUser);
+        } else {
+            setLeaderboardData(allUsers);
+        }
     }
+    
+    const storedWeekly = localStorage.getItem(`weeklyProgress_global`);
+    if (storedWeekly) setWeeklyData(JSON.parse(storedWeekly));
   }, [user]);
 
   if (!isMounted) {
@@ -28,9 +37,9 @@ export default function StatsPage() {
     return (
         <div className="p-4 sm:p-6 lg:p-8">
             <header className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Your Statistics</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Global Statistics</h1>
                 <p className="text-muted-foreground mt-1">
-                    Loading your performance data...
+                    Loading performance data for all players...
                 </p>
             </header>
             <div className="grid md:grid-cols-2 gap-8 mt-8 animate-pulse">
@@ -44,14 +53,14 @@ export default function StatsPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Your Statistics</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Global Statistics</h1>
         <p className="text-muted-foreground mt-1">
-          Track your progress and see how you stack up against others.
+          Track player progress and see who is on top.
         </p>
       </header>
       <div className="grid md:grid-cols-2 gap-8 mt-8 animate-fade-in">
         <Leaderboard data={leaderboardData} />
-        <WeeklyProgressChart data={weeklyData} />
+        <WeeklyProgressChart data={weeklyData} leaderboard={leaderboardData} />
       </div>
     </div>
   );
