@@ -11,7 +11,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Home, History, LogOut, User, Bot } from 'lucide-react';
+import { Home, History, LogOut, Bot } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -19,10 +19,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
 
-export default function DashboardLayout({
-  children,
+function DashboardLayoutContent({
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -45,73 +45,83 @@ export default function DashboardLayout({
   };
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-full">
-        <Sidebar className="border-r">
-          <SidebarHeader>
-            <div className="flex items-center gap-2 p-2">
-              <Bot className="w-8 h-8 text-primary" />
-              <h1
-                className={`text-xl font-bold transition-opacity duration-300 ${
-                  state === 'collapsed' ? 'opacity-0' : 'opacity-100'
-                }`}
+    <div className="flex h-screen w-full">
+      <Sidebar className="border-r">
+        <SidebarHeader>
+          <div className="flex items-center gap-2 p-2">
+            <Bot className="w-8 h-8 text-primary" />
+            <h1
+              className={`text-xl font-bold transition-opacity duration-300 ${
+                state === 'collapsed' ? 'opacity-0' : 'opacity-100'
+              }`}
+            >
+              QuizWhiz AI
+            </h1>
+          </div>
+        </SidebarHeader>
+        <SidebarContent className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => router.push('/dashboard')}
+                isActive={pathname === '/dashboard'}
+                tooltip="Dashboard"
               >
-                QuizWhiz AI
-              </h1>
-            </div>
-          </SidebarHeader>
-          <SidebarContent className="p-2">
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => router.push('/dashboard')}
-                  isActive={pathname === '/dashboard'}
-                  tooltip="Dashboard"
-                >
-                  <Home />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => router.push('/dashboard/history')}
-                  isActive={pathname === '/dashboard/history'}
-                   tooltip="History"
-                >
-                  <History />
-                  <span>History</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter className="p-2">
-             <div className={`flex items-center gap-3 p-2 transition-all duration-300 ${state === 'collapsed' ? 'justify-center' : ''}`}>
-                <Avatar>
-                  <AvatarImage src={user?.photoURL || undefined} />
-                  <AvatarFallback>{user?.email?.[0].toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className={`flex flex-col text-sm transition-opacity duration-300 ${state === 'collapsed' ? 'opacity-0' : 'opacity-100'}`}>
-                    <span className="font-semibold">{user?.displayName || 'User'}</span>
-                    <span className="text-muted-foreground truncate">{user?.email}</span>
-                </div>
-            </div>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleSignOut} tooltip="Log Out">
-                  <LogOut />
-                  <span>Log Out</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
-        <main className="flex-1 overflow-y-auto bg-muted/40">
-           <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4 md:hidden">
-              <SidebarTrigger />
-           </header>
-          {children}
-        </main>
-      </div>
-    </SidebarProvider>
+                <Home />
+                <span>Dashboard</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => router.push('/dashboard/history')}
+                isActive={pathname === '/dashboard/history'}
+                 tooltip="History"
+              >
+                <History />
+                <span>History</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter className="p-2">
+           <div className={`flex items-center gap-3 p-2 transition-all duration-300 ${state === 'collapsed' ? 'justify-center' : ''}`}>
+              <Avatar>
+                <AvatarImage src={user?.photoURL || undefined} />
+                <AvatarFallback>{user?.email?.[0].toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className={`flex flex-col text-sm transition-opacity duration-300 ${state === 'collapsed' ? 'opacity-0' : 'opacity-100'}`}>
+                  <span className="font-semibold">{user?.displayName || 'User'}</span>
+                  <span className="text-muted-foreground truncate">{user?.email}</span>
+              </div>
+          </div>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSignOut} tooltip="Log Out">
+                <LogOut />
+                <span>Log Out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <main className="flex-1 overflow-y-auto bg-muted/40">
+         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4 md:hidden">
+            <SidebarTrigger />
+         </header>
+        {children}
+      </main>
+    </div>
   );
+}
+
+export default function DashboardLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <SidebarProvider>
+            <DashboardLayoutContent>{children}</DashboardLayoutContent>
+        </SidebarProvider>
+    )
 }
