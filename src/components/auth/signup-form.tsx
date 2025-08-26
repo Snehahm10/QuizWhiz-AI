@@ -14,12 +14,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Chrome } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -52,19 +50,6 @@ export function SignUpForm() {
         await createUserWithEmailAndPassword(auth, values.email, values.password);
         toast({ title: 'Success', description: 'Account created successfully! Please log in.' });
         router.push('/');
-      } catch (error: any) {
-        toast({ variant: 'destructive', title: 'Error', description: error.message });
-      }
-    });
-  }
-
-  function handleGoogleSignIn() {
-    startTransition(async () => {
-      try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-        toast({ title: 'Success', description: 'Signed up successfully with Google!' });
-        router.push('/dashboard');
       } catch (error: any) {
         toast({ variant: 'destructive', title: 'Error', description: error.message });
       }
@@ -124,11 +109,6 @@ export function SignUpForm() {
             </Button>
           </form>
         </Form>
-        <Separator className="my-6" />
-        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isPending}>
-          <Chrome className="mr-2 h-4 w-4" />
-          Sign Up with Google
-        </Button>
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">

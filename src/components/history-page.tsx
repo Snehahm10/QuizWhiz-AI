@@ -13,27 +13,15 @@ interface QuizResult {
   total: number;
 }
 
-// Mock data, in a real app this would come from a database
-const mockHistory: QuizResult[] = [
-    { date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), subject: 'Science', score: 8, total: 10 },
-    { date: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(), subject: 'Python', score: 6, total: 10 },
-    { date: new Date(new Date().setDate(new Date().getDate() - 3)).toISOString(), subject: 'History', score: 9, total: 10 },
-    { date: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), subject: 'Mathematics', score: 5, total: 10 },
-    { date: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString(), subject: 'JavaScript', score: 7, total: 10 },
-];
-
-
 export default function HistoryPage() {
   const [history, setHistory] = useState<QuizResult[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // In a real app, you'd fetch this from a database.
-    // For now, we'll use local storage to persist results across page loads.
+    setIsMounted(true);
     const storedHistory = localStorage.getItem('quizHistory');
     if (storedHistory) {
       setHistory(JSON.parse(storedHistory));
-    } else {
-      setHistory(mockHistory);
     }
   }, []);
 
@@ -42,6 +30,10 @@ export default function HistoryPage() {
     if (percentage >= 80) return 'success';
     if (percentage >= 50) return 'secondary';
     return 'destructive';
+  }
+
+  if (!isMounted) {
+    return null; // or a loading skeleton
   }
 
   return (
