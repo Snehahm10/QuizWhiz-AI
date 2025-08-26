@@ -16,6 +16,7 @@ const GenerateMcqInputSchema = z.object({
   subject: z.string().describe('The subject area of the MCQs.'),
   language: z.enum(['english', 'hindi', 'kannada']).default('english').describe('The language for the MCQ question and answers'),
   difficulty: z.enum(['easy', 'medium', 'difficult']).default('medium').describe('The difficulty level of the MCQs.'),
+  previousQuestions: z.array(z.string()).optional().describe('A list of questions that have already been asked in this session to avoid repetition.'),
 });
 export type GenerateMcqInput = z.infer<typeof GenerateMcqInputSchema>;
 
@@ -46,6 +47,14 @@ const generateMcqPrompt = ai.definePrompt({
   If the topic is "random" or not provided, please generate a random but relevant question from the specified subject.
   The MCQ should have four options, and you should indicate the index of the correct answer.
   Provide a short explanation for the correct answer in the end. Make sure the difficulty level is appropriate for the question.
+  
+  {{#if previousQuestions}}
+  IMPORTANT: Do not repeat any of the following questions that have already been asked in this quiz session:
+  {{#each previousQuestions}}
+  - "{{{this}}}"
+  {{/each}}
+  {{/if}}
+
   The response must be in JSON format, matching the schema. Example:
   {
     "question": "What is the capital of France?",

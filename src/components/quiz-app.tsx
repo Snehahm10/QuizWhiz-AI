@@ -65,10 +65,14 @@ export default function QuizApp() {
     
     startTransition(async () => {
       try {
-        const newQuestions = await Promise.all(
-          Array.from({ length: TOTAL_QUESTIONS }, () => generateMcqAction(settings))
-        );
-        setQuestions(newQuestions);
+        const generatedQuestions: Mcq[] = [];
+        const questionTexts: string[] = [];
+        for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+          const newQuestion = await generateMcqAction({ ...settings, previousQuestions: questionTexts });
+          generatedQuestions.push(newQuestion);
+          questionTexts.push(newQuestion.question);
+        }
+        setQuestions(generatedQuestions);
         setQuizState('in-progress');
       } catch (error) {
         toast({
