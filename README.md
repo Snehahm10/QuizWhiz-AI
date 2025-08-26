@@ -31,49 +31,71 @@ QuizWhiz AI is an intelligent, interactive, and user-friendly quiz application p
 
 ## 🚀 Getting Started
 
-To get a local copy up and running, follow these simple steps.
+Follow these steps to get a local copy of the project up and running on your machine.
 
 ### Prerequisites
 
--   Node.js (v18 or newer)
--   npm, yarn, or pnpm
+-   **Node.js**: Make sure you have Node.js version 18 or newer installed. You can download it from [nodejs.org](https://nodejs.org/).
+-   **npm**: npm (Node Package Manager) is included with Node.js.
 
-### Installation
+### 1. Clone the Repository
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/quizwhiz-ai.git
-    cd quizwhiz-ai
-    ```
+First, clone the project repository to your local machine using Git.
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+```bash
+git clone https://github.com/your-username/quizwhiz-ai.git
+cd quizwhiz-ai
+```
 
-3.  **Set up environment variables:**
-    Create a file named `.env` in the root of your project and add your Firebase configuration details and your Google AI API key.
+### 2. Install Dependencies
 
-    ```env
-    # Firebase Configuration - Replace with your actual Firebase project config
-    NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
-    NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
-    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-storage-bucket"
-    NEXT_PUBLIC_FIREBASE_API_KEY="your-api-key"
-    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-auth-domain"
-    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
-    
-    # Google AI API Key for Genkit
-    GEMINI_API_KEY="your-google-ai-api-key"
-    ```
-    *Note: The project currently has Firebase config in `src/lib/firebase.ts`. For better security and management, moving it to `.env` is recommended.*
+Next, install all the necessary project dependencies using npm. This command reads the `package.json` file and downloads the required libraries.
 
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
+```bash
+npm install
+```
 
-Open [http://localhost:9002](http://localhost:9002) with your browser to see the result.
+### 3. Set Up Environment Variables
+
+For the application to connect to Firebase and Google AI services, you need to provide your API keys and configuration details.
+
+1.  Create a new file named `.env` in the root directory of your project.
+2.  Copy the following content into the `.env` file and replace the placeholder values with your actual credentials.
+
+```env
+# Firebase Configuration
+# You can get these values from your Firebase project's settings page.
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-project-id"
+NEXT_PUBLIC_FIREBASE_APP_ID="your-app-id"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="your-storage-bucket"
+NEXT_PUBLIC_FIREBASE_API_KEY="your-api-key"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-auth-domain"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
+
+# Google AI API Key for Genkit
+# You can generate this from Google AI Studio.
+GEMINI_API_KEY="your-google-ai-api-key"
+```
+
+*Note: The project also has a fallback Firebase configuration in `src/lib/firebase.ts`. However, using a `.env` file is the recommended and more secure approach.*
+
+### 4. Run the Development Server
+
+Now you're ready to start the application. Run the following command to launch the development server:
+
+```bash
+npm run dev
+```
+
+This command starts the Next.js application with Turbopack for faster performance. It also starts the Genkit AI flows required for generating quiz questions.
+
+### 5. Open the Application
+
+Once the server is running, you'll see a message in your terminal. Open your web browser and navigate to:
+
+[http://localhost:9002](http://localhost:9002)
+
+You should now see the QuizWhiz AI login page. You can create an account and start using the app!
 
 ## 📂 Project Structure
 
