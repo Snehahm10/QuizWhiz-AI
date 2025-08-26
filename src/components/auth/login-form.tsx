@@ -46,17 +46,24 @@ export function LoginForm() {
       try {
         await signInWithEmailAndPassword(auth, values.email, values.password)
         .catch(async (error) => {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                // For prototype, create user if not exists
-                await createUserWithEmailAndPassword(auth, values.email, values.password);
-                await signInWithEmailAndPassword(auth, values.email, values.password);
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                // For prototype, create user if not exists, then sign in.
+                try {
+                  await createUserWithEmailAndPassword(auth, values.email, values.password);
+                  await signInWithEmailAndPassword(auth, values.email, values.password);
+                } catch (creationError: any) {
+                  // If creation fails (e.g. user exists but password was wrong), it's a real error.
+                  toast({ variant: 'destructive', title: 'Login Error', description: "Please check your email and password." });
+                  return; // Stop execution
+                }
+
             } else {
                 throw error;
             }
         });
 
+        // The useAuth hook will handle the redirect, but we can still show a toast.
         toast({ title: 'Success', description: 'Logged in successfully!' });
-        router.push('/dashboard');
       } catch (error: any) {
         toast({ variant: 'destructive', title: 'Error', description: error.message });
       }
@@ -68,8 +75,8 @@ export function LoginForm() {
       try {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
+        // The useAuth hook will handle the redirect.
         toast({ title: 'Success', description: 'Logged in successfully with Google!' });
-        router.push('/dashboard');
       } catch (error: any) {
         toast({ variant: 'destructive', title: 'Error', description: error.message });
       }
