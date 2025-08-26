@@ -11,7 +11,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Home, History, LogOut, Bot, TrendingUp, User as UserIcon } from 'lucide-react';
+import { Home, History, LogOut, Bot, TrendingUp, User as UserIcon, Moon, Sun } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -21,6 +21,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { ThemeToggle } from '../theme-toggle';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { useTheme } from 'next-themes';
 
 
 function SidebarItems({ onLinkClick }: { onLinkClick?: () => void }) {
@@ -136,10 +138,27 @@ function DashboardLayoutContent({
   const { setOpenMobile } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useAuth();
+  const { setTheme } = useTheme();
+  const { toast } = useToast();
 
   const handleNavigation = (path: string) => {
     router.push(path);
   }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      toast({ title: 'Success', description: 'Logged out successfully' });
+      router.push('/');
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to log out',
+      });
+    }
+  };
   
   return (
     <TooltipProvider>
@@ -178,9 +197,45 @@ function DashboardLayoutContent({
                   </TooltipTrigger>
                   <TooltipContent>Stats</TooltipContent>
               </Tooltip>
-              <SidebarTrigger>
-                <UserIcon className="h-5 w-5"/>
-              </SidebarTrigger>
+               <DropdownMenu>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="rounded-full">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={user?.photoURL || undefined} />
+                                        <AvatarFallback>{user?.email?.[0].toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>My Account</TooltipContent>
+                    </Tooltip>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>
+                            <p className="font-medium">{user?.displayName || user?.email?.split('@')[0]}</p>
+                            <p className="text-xs text-muted-foreground">{user?.email}</p>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setTheme('light')}>
+                            <Sun className="mr-2 h-4 w-4" />
+                            <span>Light</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('dark')}>
+                            <Moon className="mr-2 h-4 w-4" />
+                            <span>Dark</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTheme('system')}>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            <span>System</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleSignOut}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Log out</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
           </nav>
         </header>
         <main className="flex-1 overflow-y-auto">
@@ -207,3 +262,4 @@ export default function DashboardLayout({
         </SidebarProvider>
     )
 }
+    
