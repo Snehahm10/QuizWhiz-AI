@@ -19,7 +19,7 @@ import { Chrome } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -44,17 +44,21 @@ export function LoginForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        // For prototyping, allow any password for a given email if the user doesn't exist.
-        // In a real app, you would not do this.
-        await signInWithEmailAndPassword(auth, values.email, values.password).catch(async (error) => {
-            router.push('/dashboard');
+        await signInWithEmailAndPassword(auth, values.email, values.password)
+        .catch(async (error) => {
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                // For prototype, create user if not exists
+                await createUserWithEmailAndPassword(auth, values.email, values.password);
+                await signInWithEmailAndPassword(auth, values.email, values.password);
+            } else {
+                throw error;
+            }
         });
+
         toast({ title: 'Success', description: 'Logged in successfully!' });
         router.push('/dashboard');
       } catch (error: any) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Login failed. For this prototype, any email and password will work.' });
-        // Still push to dashboard for prototype purposes
-        router.push('/dashboard');
+        toast({ variant: 'destructive', title: 'Error', description: error.message });
       }
     });
   }
