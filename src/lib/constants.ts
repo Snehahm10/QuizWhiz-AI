@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Atom, BookOpen, Cpu, Globe, Landmark, Sigma } from 'lucide-react';
+import { Atom, BookOpen, Code, Cpu, Globe, Landmark, Sigma } from 'lucide-react';
 
 export const SUBJECTS: { value: string; label: string; icon: LucideIcon }[] = [
   { value: 'science', label: 'Science', icon: Atom },
@@ -8,6 +8,7 @@ export const SUBJECTS: { value: string; label: string; icon: LucideIcon }[] = [
   { value: 'mathematics', label: 'Mathematics', icon: Sigma },
   { value: 'technology', label: 'Technology', icon: Cpu },
   { value: 'literature', label: 'Literature', icon: BookOpen },
+  { value: 'programming', label: 'Programming', icon: Code },
 ];
 
 export const DIFFICULTIES = [
