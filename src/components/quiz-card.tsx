@@ -23,9 +23,9 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
   const isCorrect = selectedAnswer === mcq.correctAnswerIndex;
 
   return (
-    <Card className="w-full transition-all duration-300 ease-in-out transform hover:shadow-xl">
+    <Card className="w-full transition-all duration-300 ease-in-out transform shadow-lg hover:shadow-2xl border-primary/10">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">{mcq.question}</CardTitle>
+        <CardTitle className="text-2xl tracking-tight">{mcq.question}</CardTitle>
         <CardDescription>Choose the correct answer from the options below.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -33,7 +33,7 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
           value={selectedAnswer !== null ? String(selectedAnswer) : ''}
           onValueChange={(value) => onAnswerSelect(Number(value))}
           disabled={isSubmitted}
-          className="space-y-4"
+          className="space-y-3"
         >
           {mcq.options.map((option, index) => {
             const isSelected = selectedAnswer === index;
@@ -45,12 +45,12 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
                 <Label
                   htmlFor={`option-${index}`}
                   className={cn(
-                    "flex items-center p-4 rounded-lg border-2 transition-all cursor-pointer",
-                    "hover:border-primary",
-                    isSelected && !isSubmitted && "border-primary bg-primary/10",
-                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-green-700 font-bold",
-                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-red-700 font-bold",
-                    isSubmitted && !isSelected && "opacity-60"
+                    "flex items-center p-4 rounded-lg border-2 transition-all cursor-pointer text-base",
+                    "hover:border-primary/50",
+                    isSelected && !isSubmitted && "border-primary bg-primary/10 ring-2 ring-primary/50",
+                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-success-foreground font-semibold ring-2 ring-success/50",
+                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-destructive-foreground font-semibold ring-2 ring-destructive/50",
+                    isSubmitted && !isSelected && "opacity-60 hover:opacity-80"
                   )}
                 >
                   <span className="flex-1">{option}</span>
@@ -63,7 +63,7 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
         </RadioGroup>
 
         {isSubmitted && (
-          <div className="p-4 bg-secondary rounded-lg space-y-3 animate-in fade-in duration-500">
+          <div className="p-4 bg-muted/80 rounded-lg space-y-3 animate-in fade-in-50 duration-500">
             <h3 className="font-bold text-lg flex items-center gap-2">
               {isCorrect ? (
                 <><CheckCircle2 className="h-6 w-6 text-success" /> Correct!</>
@@ -72,18 +72,18 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
               )}
             </h3>
             <Separator />
-            <p className="text-muted-foreground">{mcq.explanation}</p>
+            <p className="text-muted-foreground text-base">{mcq.explanation}</p>
           </div>
         )}
       </CardContent>
       <CardFooter>
         {isSubmitted ? (
-          <Button onClick={onNextQuestion} className="w-full">
+          <Button onClick={onNextQuestion} className="w-full" size="lg">
             {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
-            {isLastQuestion ? <Trophy className="ml-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
+            {isLastQuestion ? <Trophy className="ml-2 h-5 w-5" /> : <ArrowRight className="ml-2 h-5 w-5" />}
           </Button>
         ) : (
-          <Button onClick={onSubmit} className="w-full" disabled={selectedAnswer === null}>
+          <Button onClick={onSubmit} className="w-full" size="lg" disabled={selectedAnswer === null}>
             Submit Answer
           </Button>
         )}

@@ -18,6 +18,7 @@ import { signOut } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
+import { ThemeToggle } from '../theme-toggle';
 
 function DashboardLayoutContent({
     children,
@@ -45,11 +46,13 @@ function DashboardLayoutContent({
   };
 
   return (
-    <div className="flex h-screen w-full">
+    <div className="flex h-screen w-full bg-muted/30">
       <Sidebar className="border-r">
         <SidebarHeader>
           <div className="flex items-center gap-2 p-2">
-            <Bot className="w-8 h-8 text-primary" />
+            <div className="bg-primary/10 p-2 rounded-lg">
+              <Bot className="w-7 h-7 text-primary" />
+            </div>
             <h1
               className={`text-xl font-bold transition-opacity duration-300 ${
                 state === 'collapsed' ? 'opacity-0' : 'opacity-100'
@@ -93,29 +96,34 @@ function DashboardLayoutContent({
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-2">
-           <div className={`flex items-center gap-3 p-2 transition-all duration-300 ${state === 'collapsed' ? 'justify-center' : ''}`}>
+        <SidebarFooter className="p-2 space-y-2">
+           <div className={`flex items-center gap-3 p-2 transition-all duration-300 rounded-lg bg-background/50 ${state === 'collapsed' ? 'justify-center' : ''}`}>
               <Avatar>
                 <AvatarImage src={user?.photoURL || undefined} />
                 <AvatarFallback>{user?.email?.[0].toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className={`flex flex-col text-sm transition-opacity duration-300 ${state === 'collapsed' ? 'opacity-0' : 'opacity-100'}`}>
                   <span className="font-semibold">{user?.displayName || 'User'}</span>
-                  <span className="text-muted-foreground truncate">{user?.email}</span>
+                  <span className="text-muted-foreground truncate max-w-32">{user?.email}</span>
               </div>
           </div>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleSignOut} tooltip="Log Out">
-                <LogOut />
-                <span>Log Out</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+             <div className={`flex items-center ${state === 'collapsed' ? 'flex-col' : 'flex-row'}`}>
+                <div className="flex-grow">
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={handleSignOut} tooltip="Log Out">
+                            <LogOut />
+                            <span>Log Out</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </div>
+                <ThemeToggle />
+             </div>
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <main className="flex-1 overflow-y-auto bg-muted/40">
-         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4 md:hidden">
+      <main className="flex-1 overflow-y-auto">
+         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4 md:hidden">
             <SidebarTrigger />
          </header>
         {children}

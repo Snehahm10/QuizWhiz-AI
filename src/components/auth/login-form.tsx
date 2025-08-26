@@ -44,14 +44,14 @@ export function LoginForm() {
       try {
         await signInWithEmailAndPassword(auth, values.email, values.password);
         toast({ title: 'Success', description: 'Logged in successfully!' });
-        // The useAuth hook will handle redirection.
+        router.push('/dashboard');
       } catch (error: any) {
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
           // If user doesn't exist, create them for the prototype
           try {
             await createUserWithEmailAndPassword(auth, values.email, values.password);
             toast({ title: 'Welcome!', description: 'Account created and logged in successfully!' });
-            // The useAuth hook will handle redirection.
+            router.push('/dashboard');
           } catch (creationError: any) {
              toast({ variant: 'destructive', title: 'Login Error', description: "Could not log in. Please check your details." });
           }
@@ -65,7 +65,7 @@ export function LoginForm() {
   }
   
   return (
-    <Card className="w-full max-w-sm shadow-2xl">
+    <Card className="w-full max-w-sm shadow-xl bg-card/80 backdrop-blur-sm border-primary/20">
       <CardHeader>
         <CardTitle>Welcome Back!</CardTitle>
         <CardDescription>Sign in to continue to QuizWhiz AI.</CardDescription>
@@ -99,7 +99,7 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" className="w-full" size="lg" disabled={isPending}>
               {isPending ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
@@ -108,7 +108,7 @@ export function LoginForm() {
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
           Don't have an account?{' '}
-          <Link href="/signup" className="text-primary hover:underline">
+          <Link href="/signup" className="text-primary hover:underline font-semibold">
             Sign up
           </Link>
         </p>
