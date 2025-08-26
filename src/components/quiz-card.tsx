@@ -5,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle2, XCircle, ArrowRight, Trophy } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import type { Mcq } from "@/app/quiz/actions";
 
@@ -16,9 +16,10 @@ interface QuizCardProps {
   isSubmitted: boolean;
   onSubmit: () => void;
   onNextQuestion: () => void;
+  isLastQuestion: boolean;
 }
 
-export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmitted, onSubmit, onNextQuestion }: QuizCardProps) {
+export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmitted, onSubmit, onNextQuestion, isLastQuestion }: QuizCardProps) {
   const isCorrect = selectedAnswer === mcq.correctAnswerIndex;
 
   return (
@@ -47,8 +48,8 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
                     "flex items-center p-4 rounded-lg border-2 transition-all cursor-pointer",
                     "hover:border-primary",
                     isSelected && !isSubmitted && "border-primary bg-primary/10",
-                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-success-foreground-dark font-bold",
-                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-destructive-foreground-dark font-bold",
+                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-green-700 font-bold",
+                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-red-700 font-bold",
                     isSubmitted && !isSelected && "opacity-60"
                   )}
                 >
@@ -78,10 +79,11 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
       <CardFooter>
         {isSubmitted ? (
           <Button onClick={onNextQuestion} className="w-full">
-            Next Question <ArrowRight className="ml-2 h-4 w-4" />
+            {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
+            {isLastQuestion ? <Trophy className="ml-2 h-4 w-4" /> : <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
         ) : (
-          <Button onClick={onSubmit} className="w-full">
+          <Button onClick={onSubmit} className="w-full" disabled={selectedAnswer === null}>
             Submit Answer
           </Button>
         )}
