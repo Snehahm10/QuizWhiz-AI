@@ -78,7 +78,6 @@ export default function QuizSettingsComponent({ settings, onSettingsChange, onSt
             size="lg" 
             className={cn(
                 "w-full font-bold text-lg tracking-wider",
-                "bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90",
                 "transition-all duration-300 ease-in-out",
                 "shadow-lg hover:shadow-primary/40"
                 )}
