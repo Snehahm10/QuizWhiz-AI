@@ -122,12 +122,14 @@ function DashboardLayoutContent({
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <main className="flex-1 overflow-y-auto">
-         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4 md:hidden">
-            <SidebarTrigger />
-         </header>
-        {children}
-      </main>
+      <div className="flex flex-col flex-1">
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:hidden">
+          <SidebarTrigger />
+        </header>
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
