@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Atom, BookOpen, Code, Cpu, Globe, Landmark, Sigma, BrainCircuit, Dna, Rocket } from 'lucide-react';
+import { Atom, BookOpen, Code, Cpu, Globe, Landmark, Sigma, BrainCircuit, Dna, Rocket, Laptop, Database, FileCode } from 'lucide-react';
 
 export const SUBJECTS: { value: string; label: string; icon: LucideIcon }[] = [
   { value: 'science', label: 'Science', icon: Atom },
@@ -11,16 +11,16 @@ export const SUBJECTS: { value: string; label: string; icon: LucideIcon }[] = [
   { value: 'physics', label: 'Physics', icon: Rocket },
   { value: 'chemistry', label: 'Chemistry', icon: BrainCircuit },
   { value: 'literature', label: 'Literature', icon: BookOpen },
-  { value: 'computer science', label: 'Computer Science', icon: Code },
+  { value: 'computer science', label: 'Computer Science', icon: Laptop },
   { value: 'python', label: 'Python', icon: Code },
   { value: 'javascript', label: 'JavaScript', icon: Code },
-  { value: 'java', label: 'Java', icon: Code },
-  { value: 'csharp', label: 'C#', icon: Code },
-  { value: 'c++', label: 'C++', icon: Code },
+  { value: 'java', label: 'Java', icon: FileCode },
+  { value: 'csharp', label: 'C#', icon: FileCode },
+  { value: 'c++', label: 'C++', icon: FileCode },
   { value: 'rust', label: 'Rust', icon: Code },
   { value: 'golang', label: 'Go', icon: Code },
   { value: 'typescript', label: 'TypeScript', icon: Code },
-  { value: 'sql', label: 'SQL', icon: Code },
+  { value: 'sql', label: 'SQL', icon: Database },
 ];
 
 export const DIFFICULTIES = [
