@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -106,8 +107,8 @@ export default function QuizCard({
                   )}
                 >
                   <span className="flex-1">{option}</span>
-                  {isSubmitted && isCorrectOption && <CheckCircle2 className="h-5 w-5 text-success-foreground ml-4" />}
-                  {isSubmitted && isSelected && !isCorrectOption && <XCircle className="h-5 w-5 text-destructive-foreground ml-4" />}
+                  {isSubmitted && isCorrectOption && <CheckCircle2 className="h-5 w-5 text-success ml-4" />}
+                  {isSubmitted && isSelected && !isCorrectOption && <XCircle className="h-5 w-5 text-destructive ml-4" />}
                 </Label>
               </div>
             );
