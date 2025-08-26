@@ -122,7 +122,7 @@ function DashboardLayoutContent({
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-col flex-1 overflow-hidden">
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:hidden">
           <SidebarTrigger />
         </header>
