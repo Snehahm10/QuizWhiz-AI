@@ -65,7 +65,7 @@ export function LoginForm() {
   }
   
   return (
-    <Card className="w-full max-w-sm shadow-xl bg-card/80 backdrop-blur-sm border-primary/20">
+    <Card className="w-full max-w-sm shadow-xl bg-card/80 backdrop-blur-sm border-primary/20 animate-fade-in">
       <CardHeader>
         <CardTitle>Welcome Back!</CardTitle>
         <CardDescription>Sign in to continue to QuizWhiz AI.</CardDescription>

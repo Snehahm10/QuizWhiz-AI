@@ -102,13 +102,13 @@ function DashboardLayoutContent({
                 <AvatarImage src={user?.photoURL || undefined} />
                 <AvatarFallback>{user?.email?.[0].toUpperCase()}</AvatarFallback>
               </Avatar>
-              <div className={`flex flex-col text-sm transition-opacity duration-300 ${state === 'collapsed' ? 'opacity-0' : 'opacity-100'}`}>
-                  <span className="font-semibold">{user?.displayName || 'User'}</span>
-                  <span className="text-muted-foreground truncate max-w-32">{user?.email}</span>
+              <div className={`flex flex-col text-sm transition-opacity duration-300 overflow-hidden ${state === 'collapsed' ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}>
+                  <span className="font-semibold truncate">{user?.displayName || user?.email?.split('@')[0]}</span>
+                  <span className="text-muted-foreground truncate">{user?.email}</span>
               </div>
           </div>
           <SidebarMenu>
-             <div className={`flex items-center ${state === 'collapsed' ? 'flex-col' : 'flex-row'}`}>
+             <div className={`flex items-center ${state === 'collapsed' ? 'flex-col space-y-2' : 'flex-row'}`}>
                 <div className="flex-grow">
                     <SidebarMenuItem>
                         <SidebarMenuButton onClick={handleSignOut} tooltip="Log Out">
