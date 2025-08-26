@@ -12,7 +12,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GenerateMcqInputSchema = z.object({
-  topic: z.string().describe('The topic for which to generate MCQs.'),
+  topic: z.string().optional().describe('The topic for which to generate MCQs. If "random", generate a random question for the subject.'),
   subject: z.string().describe('The subject area of the MCQs.'),
   language: z.enum(['english', 'hindi', 'kannada']).default('english').describe('The language for the MCQ question and answers'),
   difficulty: z.enum(['easy', 'medium', 'difficult']).default('medium').describe('The difficulty level of the MCQs.'),
@@ -37,12 +37,13 @@ const generateMcqPrompt = ai.definePrompt({
   output: {schema: GenerateMcqOutputSchema},
   prompt: `You are an expert in generating MCQs for various subjects and topics.
 
-  Generate an MCQ for the following topic and subject:
-  Topic: {{{topic}}}
+  Generate an MCQ for the following:
   Subject: {{{subject}}}
+  {{#if topic}}Topic: {{{topic}}}{{/if}}
   Language: {{{language}}}
   Difficulty: {{{difficulty}}}
 
+  If the topic is "random" or not provided, please generate a random but relevant question from the specified subject.
   The MCQ should have four options, and you should indicate the index of the correct answer.
   Provide a short explanation for the correct answer in the end. Make sure the difficulty level is appropriate for the question.
   The response must be in JSON format, matching the schema. Example:

@@ -1,33 +1,33 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DIFFICULTIES, LANGUAGES, SUBJECTS, type QuizSettings } from "@/lib/constants";
 import { Rocket } from "lucide-react";
 
 interface QuizSettingsProps {
-  settings: QuizSettings;
-  onSettingsChange: React.Dispatch<React.SetStateAction<QuizSettings>>;
+  settings: Omit<QuizSettings, 'topic'>;
+  onSettingsChange: React.Dispatch<React.SetStateAction<Omit<QuizSettings, 'topic'>>>;
   onStartQuiz: () => void;
   isLoading: boolean;
   isQuizActive: boolean;
 }
 
 export default function QuizSettingsComponent({ settings, onSettingsChange, onStartQuiz, isLoading, isQuizActive }: QuizSettingsProps) {
-  const handleSettingChange = (key: keyof QuizSettings) => (value: string) => {
+  const handleSettingChange = (key: keyof Omit<QuizSettings, 'topic'>) => (value: string) => {
     onSettingsChange(prev => ({ ...prev, [key]: value }));
   };
 
   return (
-    <Card>
+    <Card className="animate-fade-in">
       <CardHeader>
-        <CardTitle className="font-headline">Quiz Setup</CardTitle>
+        <CardTitle className="font-headline text-2xl">Quiz Setup</CardTitle>
+        <CardDescription>Select your preferences and start a new quiz.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="subject">Subject</Label>
             <Select value={settings.subject} onValueChange={handleSettingChange('subject')}>
@@ -45,15 +45,6 @@ export default function QuizSettingsComponent({ settings, onSettingsChange, onSt
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="topic">Topic</Label>
-            <Input
-              id="topic"
-              placeholder="e.g. Photosynthesis"
-              value={settings.topic}
-              onChange={(e) => onSettingsChange(prev => ({ ...prev, topic: e.target.value }))}
-            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="difficulty">Difficulty</Label>
@@ -86,9 +77,9 @@ export default function QuizSettingsComponent({ settings, onSettingsChange, onSt
             </Select>
           </div>
         </div>
-        <Button onClick={onStartQuiz} disabled={isLoading || !settings.topic} className="w-full">
-          <Rocket className="mr-2 h-4 w-4" />
-          {isLoading ? 'Generating...' : isQuizActive ? 'Generate New Quiz' : 'Start Quiz'}
+        <Button onClick={onStartQuiz} disabled={isLoading} size="lg" className="w-full">
+          <Rocket className="mr-2 h-5 w-5" />
+          {isLoading ? 'Generating Quiz...' : isQuizActive ? 'Start a New Quiz' : 'Start Quiz'}
         </Button>
       </CardContent>
     </Card>

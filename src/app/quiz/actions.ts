@@ -4,9 +4,9 @@ import { generateMcq, type GenerateMcqInput, type GenerateMcqOutput } from '@/ai
 
 export type Mcq = GenerateMcqOutput;
 
-export async function generateMcqAction(input: GenerateMcqInput): Promise<Mcq> {
+export async function generateMcqAction(input: Omit<GenerateMcqInput, 'topic'>): Promise<Mcq> {
   try {
-    const mcq = await generateMcq(input);
+    const mcq = await generateMcq({ topic: 'random', ...input });
     if (!mcq.question || mcq.options.length !== 4) {
       throw new Error('AI failed to generate a valid MCQ.');
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useTransition, useCallback, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { type QuizSettings } from '@/lib/constants';
 import { generateMcqAction, type Mcq } from '@/app/quiz/actions';
@@ -17,12 +17,16 @@ const TOTAL_QUESTIONS = 10;
 
 type QuizState = 'not-started' | 'loading' | 'in-progress' | 'completed';
 
+export interface ScoreData {
+  score: number;
+  date: string; // ISO string
+}
+
 export default function QuizApp() {
-  const [settings, setSettings] = useState<QuizSettings>({
+  const [settings, setSettings] = useState<Omit<QuizSettings, 'topic'>>({
     subject: 'science',
     difficulty: 'medium',
     language: 'english',
-    topic: 'Photosynthesis',
   });
   const [questions, setQuestions] = useState<Mcq[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -30,9 +34,26 @@ export default function QuizApp() {
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
   const [quizState, setQuizState] = useState<QuizState>('not-started');
+  
+  // States for leaderboard and graph
+  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+  const [weeklyData, setWeeklyData] = useState<ScoreData[]>([]);
 
   const [isLoading, startTransition] = useTransition();
   const { toast } = useToast();
+
+  const loadData = useCallback(() => {
+     // Load leaderboard and weekly data from localStorage
+    const storedLeaderboard = localStorage.getItem('leaderboard');
+    if (storedLeaderboard) setLeaderboardData(JSON.parse(storedLeaderboard));
+    
+    const storedWeekly = localStorage.getItem('weeklyProgress');
+    if (storedWeekly) setWeeklyData(JSON.parse(storedWeekly));
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleStartQuiz = useCallback(() => {
     setQuizState('loading');
@@ -60,15 +81,59 @@ export default function QuizApp() {
     });
   }, [settings, toast]);
   
+  const handleFinishQuiz = useCallback(() => {
+    const finalScore = score;
+    const today = new Date().toISOString();
+
+    // --- Update History ---
+    const newHistoryItem = {
+      date: today,
+      subject: settings.subject,
+      score: finalScore,
+      total: TOTAL_QUESTIONS,
+    };
+    const storedHistory = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+    const newHistory = [newHistoryItem, ...storedHistory];
+    localStorage.setItem('quizHistory', JSON.stringify(newHistory));
+
+
+    // --- Update Weekly Progress ---
+    const newScoreData: ScoreData = { score: finalScore * 10, date: today };
+    const storedWeekly = JSON.parse(localStorage.getItem('weeklyProgress') || '[]') as ScoreData[];
+    const updatedWeekly = [...storedWeekly, newScoreData];
+    localStorage.setItem('weeklyProgress', JSON.stringify(updatedWeekly));
+    setWeeklyData(updatedWeekly);
+
+    // --- Update Leaderboard ---
+    // In a real app, user data would come from auth
+    const currentUser = { name: "You", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" };
+    const storedLeaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+    
+    const userIndex = storedLeaderboard.findIndex((u: any) => u.name === currentUser.name);
+    if (userIndex > -1) {
+        storedLeaderboard[userIndex].score += finalScore * 10;
+    } else {
+        storedLeaderboard.push({ ...currentUser, score: finalScore * 10 });
+    }
+    const sortedLeaderboard = storedLeaderboard.sort((a: any, b: any) => b.score - a.score).map((u: any, i: number) => ({ ...u, rank: i + 1 }));
+
+    localStorage.setItem('leaderboard', JSON.stringify(sortedLeaderboard));
+    setLeaderboardData(sortedLeaderboard);
+
+    setQuizState('completed');
+    loadData(); // Reload data to ensure UI is up to date
+  }, [score, settings.subject, loadData]);
+
+
   const handleNextQuestion = useCallback(() => {
     setIsSubmitted(false);
     setSelectedAnswer(null);
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      setQuizState('completed');
+      handleFinishQuiz();
     }
-  }, [currentQuestionIndex, questions.length]);
+  }, [currentQuestionIndex, questions.length, handleFinishQuiz]);
 
   const handleSubmitAnswer = useCallback(() => {
     if (selectedAnswer === null) {
@@ -86,7 +151,7 @@ export default function QuizApp() {
   }, [selectedAnswer, toast, questions, currentQuestionIndex]);
 
   const mcq = questions[currentQuestionIndex];
-  const progress = (currentQuestionIndex / TOTAL_QUESTIONS) * 100;
+  const progress = ((currentQuestionIndex + 1) / TOTAL_QUESTIONS) * 100;
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-8">
@@ -104,7 +169,7 @@ export default function QuizApp() {
       
       {quizState === 'in-progress' && mcq && (
         <>
-          <div className="w-full max-w-2xl mx-auto">
+          <div className="w-full max-w-2xl mx-auto animate-fade-in">
             <div className="flex justify-between items-center mb-2">
               <p className="text-sm text-muted-foreground">Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS}</p>
               <p className="text-sm font-bold">Score: {score}</p>
@@ -131,10 +196,10 @@ export default function QuizApp() {
         />
       )}
 
-      {quizState === 'not-started' && (
-        <div className="grid md:grid-cols-2 gap-8 mt-8">
-          <Leaderboard />
-          <WeeklyProgressChart />
+      {(quizState === 'not-started' || quizState === 'completed') && (
+        <div className="grid md:grid-cols-2 gap-8 mt-8 animate-fade-in">
+          <Leaderboard data={leaderboardData} />
+          <WeeklyProgressChart data={weeklyData}/>
         </div>
       )}
     </div>

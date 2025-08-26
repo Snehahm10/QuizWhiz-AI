@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trophy } from "lucide-react";
 
 // Mock data for the leaderboard
-const leaderboardData = [
+const defaultLeaderboardData = [
   { rank: 1, name: "Alice", score: 980, avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
   { rank: 2, name: "Bob", score: 950, avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d" },
   { rank: 3, name: "Charlie", score: 920, avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706d" },
@@ -13,7 +13,12 @@ const leaderboardData = [
   { rank: 5, name: "Eve", score: 850, avatar: "https://i.pravatar.cc/150?u=a042581f4e29026708d" },
 ];
 
-export default function Leaderboard() {
+interface LeaderboardProps {
+    data?: { rank: number; name: string; score: number; avatar: string; }[];
+}
+
+export default function Leaderboard({ data }: LeaderboardProps) {
+    const leaderboardData = data && data.length > 0 ? data : defaultLeaderboardData;
   return (
     <Card>
       <CardHeader>
@@ -24,8 +29,8 @@ export default function Leaderboard() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-4">
-          {leaderboardData.map((user) => (
-            <li key={user.rank} className="flex items-center justify-between">
+          {leaderboardData.slice(0, 5).map((user) => (
+            <li key={user.rank} className="flex items-center justify-between transition-transform hover:scale-105">
               <div className="flex items-center gap-4">
                 <span className="font-bold text-lg w-6 text-center">{user.rank}</span>
                 <Avatar>

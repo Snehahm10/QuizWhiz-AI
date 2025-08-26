@@ -11,12 +11,16 @@ export const SUBJECTS: { value: string; label: string; icon: LucideIcon }[] = [
   { value: 'physics', label: 'Physics', icon: Rocket },
   { value: 'chemistry', label: 'Chemistry', icon: BrainCircuit },
   { value: 'literature', label: 'Literature', icon: BookOpen },
+  { value: 'computer science', label: 'Computer Science', icon: Code },
   { value: 'python', label: 'Python', icon: Code },
   { value: 'javascript', label: 'JavaScript', icon: Code },
   { value: 'java', label: 'Java', icon: Code },
   { value: 'csharp', label: 'C#', icon: Code },
+  { value: 'c++', label: 'C++', icon: Code },
   { value: 'rust', label: 'Rust', icon: Code },
   { value: 'golang', label: 'Go', icon: Code },
+  { value: 'typescript', label: 'TypeScript', icon: Code },
+  { value: 'sql', label: 'SQL', icon: Code },
 ];
 
 export const DIFFICULTIES = [
@@ -39,5 +43,5 @@ export interface QuizSettings {
   subject: Subject;
   difficulty: Difficulty;
   language: Language;
-  topic: string;
+  topic?: string; // Topic is now optional
 }

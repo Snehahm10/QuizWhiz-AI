@@ -18,6 +18,10 @@ import { Separator } from '@/components/ui/separator';
 import { Chrome } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';
+import { auth } from '@/lib/firebase';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -26,6 +30,8 @@ const formSchema = z.object({
 
 export function LoginForm() {
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -36,27 +42,32 @@ export function LoginForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(() => {
-      // Handle email/password login
-      console.log('Email/Password Login:', values);
-      // On successful login, you would redirect to the main app page
-      // For now, let's just log it and redirect.
-      window.location.href = '/login';
+    startTransition(async () => {
+      try {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        toast({ title: 'Success', description: 'Logged in successfully!' });
+        router.push('/dashboard');
+      } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Error', description: error.message });
+      }
     });
   }
 
   function handleGoogleSignIn() {
-    startTransition(() => {
-      // Handle Google Sign-In
-      console.log('Google Sign-In');
-      // On successful login, you would redirect to the main app page
-      // For now, let's just log it and redirect.
-      window.location.href = '/login';
+    startTransition(async () => {
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        toast({ title: 'Success', description: 'Logged in successfully with Google!' });
+        router.push('/dashboard');
+      } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Error', description: error.message });
+      }
     });
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm shadow-2xl">
       <CardHeader>
         <CardTitle>Welcome Back!</CardTitle>
         <CardDescription>Sign in to continue to QuizWhiz AI.</CardDescription>

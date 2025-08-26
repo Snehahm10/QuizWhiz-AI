@@ -18,6 +18,10 @@ import { Separator } from '@/components/ui/separator';
 import { Chrome } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';
+import { auth } from '@/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -30,6 +34,8 @@ const formSchema = z.object({
 
 export function SignUpForm() {
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,21 +47,32 @@ export function SignUpForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(() => {
-      // Handle email/password signup
-      console.log('Email/Password Sign-Up:', values);
+    startTransition(async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, values.email, values.password);
+        toast({ title: 'Success', description: 'Account created successfully! Please log in.' });
+        router.push('/');
+      } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Error', description: error.message });
+      }
     });
   }
 
   function handleGoogleSignIn() {
-    startTransition(() => {
-      // Handle Google Sign-In
-      console.log('Google Sign-In');
+    startTransition(async () => {
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        toast({ title: 'Success', description: 'Signed up successfully with Google!' });
+        router.push('/dashboard');
+      } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Error', description: error.message });
+      }
     });
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm shadow-2xl">
       <CardHeader>
         <CardTitle>Create an Account</CardTitle>
         <CardDescription>Get started with QuizWhiz AI today.</CardDescription>
@@ -116,7 +133,7 @@ export function SignUpForm() {
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/" className="text-primary hover:underline">
             Sign in
           </Link>
         </p>
