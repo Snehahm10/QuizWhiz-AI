@@ -11,7 +11,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Home, History, LogOut, Bot } from 'lucide-react';
+import { Home, History, LogOut, Bot, TrendingUp } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -79,6 +79,16 @@ function DashboardLayoutContent({
               >
                 <History />
                 <span>History</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => router.push('/dashboard/stats')}
+                isActive={pathname === '/dashboard/stats'}
+                 tooltip="Stats"
+              >
+                <TrendingUp />
+                <span>Stats</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

@@ -9,8 +9,6 @@ import QuizSettingsComponent from './quiz-settings';
 import QuizCard from './quiz-card';
 import QuizSkeleton from './quiz-skeleton';
 import QuizResults from './quiz-results';
-import Leaderboard from './leaderboard';
-import WeeklyProgressChart from './weekly-progress-chart';
 import { Progress } from './ui/progress';
 
 const TOTAL_QUESTIONS = 10;
@@ -35,25 +33,8 @@ export default function QuizApp() {
   const [score, setScore] = useState<number>(0);
   const [quizState, setQuizState] = useState<QuizState>('not-started');
   
-  // States for leaderboard and graph
-  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
-  const [weeklyData, setWeeklyData] = useState<ScoreData[]>([]);
-
   const [isLoading, startTransition] = useTransition();
   const { toast } = useToast();
-
-  const loadData = useCallback(() => {
-     // Load leaderboard and weekly data from localStorage
-    const storedLeaderboard = localStorage.getItem('leaderboard');
-    if (storedLeaderboard) setLeaderboardData(JSON.parse(storedLeaderboard));
-    
-    const storedWeekly = localStorage.getItem('weeklyProgress');
-    if (storedWeekly) setWeeklyData(JSON.parse(storedWeekly));
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   const handleStartQuiz = useCallback(() => {
     setQuizState('loading');
@@ -106,7 +87,7 @@ export default function QuizApp() {
     const storedWeekly = JSON.parse(localStorage.getItem('weeklyProgress') || '[]') as ScoreData[];
     const updatedWeekly = [...storedWeekly, newScoreData];
     localStorage.setItem('weeklyProgress', JSON.stringify(updatedWeekly));
-    setWeeklyData(updatedWeekly);
+    
 
     // --- Update Leaderboard ---
     // In a real app, user data would come from auth
@@ -122,11 +103,9 @@ export default function QuizApp() {
     const sortedLeaderboard = storedLeaderboard.sort((a: any, b: any) => b.score - a.score).map((u: any, i: number) => ({ ...u, rank: i + 1 }));
 
     localStorage.setItem('leaderboard', JSON.stringify(sortedLeaderboard));
-    setLeaderboardData(sortedLeaderboard);
-
+    
     setQuizState('completed');
-    loadData(); // Reload data to ensure UI is up to date
-  }, [score, settings.subject, loadData]);
+  }, [score, settings.subject]);
 
 
   const handleNextQuestion = useCallback(() => {
@@ -198,13 +177,6 @@ export default function QuizApp() {
           totalQuestions={TOTAL_QUESTIONS}
           onRestart={handleStartQuiz}
         />
-      )}
-
-      {(quizState === 'not-started' || quizState === 'completed') && (
-        <div className="grid md:grid-cols-2 gap-8 mt-8 animate-fade-in">
-          <Leaderboard data={leaderboardData} />
-          <WeeklyProgressChart data={weeklyData}/>
-        </div>
       )}
     </div>
   );
