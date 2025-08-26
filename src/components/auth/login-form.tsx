@@ -39,6 +39,9 @@ export function LoginForm() {
     startTransition(() => {
       // Handle email/password login
       console.log('Email/Password Login:', values);
+      // On successful login, you would redirect to the main app page
+      // For now, let's just log it and redirect.
+      window.location.href = '/login';
     });
   }
 
@@ -46,6 +49,9 @@ export function LoginForm() {
     startTransition(() => {
       // Handle Google Sign-In
       console.log('Google Sign-In');
+      // On successful login, you would redirect to the main app page
+      // For now, let's just log it and redirect.
+      window.location.href = '/login';
     });
   }
 
