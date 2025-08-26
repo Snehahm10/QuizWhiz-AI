@@ -80,8 +80,7 @@ export default function QuizSettingsComponent({ settings, onSettingsChange, onSt
                 "w-full font-bold text-lg tracking-wider",
                 "bg-gradient-to-r from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90",
                 "transition-all duration-300 ease-in-out",
-                "shadow-lg hover:shadow-primary/40",
-                "animate-pulse hover:animate-none"
+                "shadow-lg hover:shadow-primary/40"
                 )}
             >
           <Rocket className="mr-2 h-5 w-5" />

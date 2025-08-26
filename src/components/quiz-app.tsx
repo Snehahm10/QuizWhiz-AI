@@ -153,11 +153,6 @@ export default function QuizApp() {
       {quizState === 'in-progress' && mcq && (
         <>
           <div className="w-full max-w-2xl mx-auto animate-fade-in">
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-sm text-muted-foreground">Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS}</p>
-              <p className="text-sm font-bold">Score: {score}</p>
-            </div>
-            <Progress value={progress} className="w-full mb-4" />
             <QuizCard
               mcq={mcq}
               selectedAnswer={selectedAnswer}
@@ -166,6 +161,10 @@ export default function QuizApp() {
               onSubmit={handleSubmitAnswer}
               onNextQuestion={handleNextQuestion}
               isLastQuestion={currentQuestionIndex === TOTAL_QUESTIONS - 1}
+              questionNumber={currentQuestionIndex + 1}
+              totalQuestions={TOTAL_QUESTIONS}
+              score={score}
+              progress={progress}
             />
           </div>
         </>

@@ -1,11 +1,13 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, XCircle, ArrowRight, Trophy } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
+import { CheckCircle2, XCircle, ArrowRight, Trophy, Timer } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import type { Mcq } from "@/app/quiz/actions";
 
@@ -17,18 +19,69 @@ interface QuizCardProps {
   onSubmit: () => void;
   onNextQuestion: () => void;
   isLastQuestion: boolean;
+  questionNumber: number;
+  totalQuestions: number;
+  score: number;
+  progress: number;
 }
 
-export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmitted, onSubmit, onNextQuestion, isLastQuestion }: QuizCardProps) {
+const QUESTION_TIME_LIMIT = 30; // 30 seconds
+
+export default function QuizCard({ 
+    mcq, 
+    selectedAnswer, 
+    onAnswerSelect, 
+    isSubmitted, 
+    onSubmit, 
+    onNextQuestion, 
+    isLastQuestion,
+    questionNumber,
+    totalQuestions,
+    score,
+    progress,
+}: QuizCardProps) {
   const isCorrect = selectedAnswer === mcq.correctAnswerIndex;
+  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_LIMIT);
+
+  useEffect(() => {
+    setTimeLeft(QUESTION_TIME_LIMIT); // Reset timer for each new question
+    
+    if (isSubmitted) {
+      return; // Stop the timer if answer is submitted
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(timer);
+          onNextQuestion(); // Move to next question when time is up
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer); // Cleanup timer on component unmount or re-render
+  }, [mcq.question, isSubmitted, onNextQuestion]);
+  
 
   return (
     <Card className="w-full transition-all duration-300 ease-in-out transform shadow-lg hover:shadow-2xl border-primary/10">
       <CardHeader>
-        <CardTitle className="text-2xl tracking-tight">{mcq.question}</CardTitle>
+        <div className="flex justify-between items-center mb-2">
+            <p className="text-sm text-muted-foreground">Question {questionNumber} of {totalQuestions}</p>
+            <p className="text-sm font-bold">Score: {score}</p>
+        </div>
+        <Progress value={progress} className="w-full mb-4" />
+        <CardTitle className="text-2xl tracking-tight pt-4">{mcq.question}</CardTitle>
         <CardDescription>Choose the correct answer from the options below.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="flex items-center justify-end text-lg font-bold text-primary">
+            <Timer className="mr-2 h-6 w-6" />
+            <span>00:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}</span>
+        </div>
+
         <RadioGroup
           value={selectedAnswer !== null ? String(selectedAnswer) : ''}
           onValueChange={(value) => onAnswerSelect(Number(value))}
@@ -48,8 +101,8 @@ export default function QuizCard({ mcq, selectedAnswer, onAnswerSelect, isSubmit
                     "flex items-center p-4 rounded-lg border-2 transition-all cursor-pointer text-base",
                     "hover:border-primary/50",
                     isSelected && !isSubmitted && "border-primary bg-primary/10 ring-2 ring-primary/50",
-                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-success-foreground font-semibold ring-2 ring-success/50",
-                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-destructive-foreground font-semibold ring-2 ring-destructive/50",
+                    isSubmitted && isCorrectOption && "border-success bg-success/10 text-success font-semibold ring-2 ring-success/50",
+                    isSubmitted && isSelected && !isCorrectOption && "border-destructive bg-destructive/10 text-destructive font-semibold ring-2 ring-destructive/50",
                     isSubmitted && !isSelected && "opacity-60 hover:opacity-80"
                   )}
                 >
