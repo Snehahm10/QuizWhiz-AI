@@ -178,10 +178,8 @@ function DashboardLayoutContent({
                   </TooltipTrigger>
                   <TooltipContent>Stats</TooltipContent>
               </Tooltip>
-              <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <UserIcon className="h-5 w-5"/>
-                </Button>
+              <SidebarTrigger asChild variant="ghost" size="icon">
+                <UserIcon className="h-5 w-5"/>
               </SidebarTrigger>
           </nav>
         </header>
