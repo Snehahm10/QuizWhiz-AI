@@ -14,12 +14,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Chrome } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -41,48 +39,31 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       try {
-        await signInWithEmailAndPassword(auth, values.email, values.password)
-        .catch(async (error) => {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                // For prototype, create user if not exists, then sign in.
-                try {
-                  await createUserWithEmailAndPassword(auth, values.email, values.password);
-                  await signInWithEmailAndPassword(auth, values.email, values.password);
-                } catch (creationError: any) {
-                  // If creation fails (e.g. user exists but password was wrong), it's a real error.
-                  toast({ variant: 'destructive', title: 'Login Error', description: "Please check your email and password." });
-                  return; // Stop execution
-                }
-
-            } else {
-                throw error;
-            }
-        });
-
-        // The useAuth hook will handle the redirect, but we can still show a toast.
+        await signInWithEmailAndPassword(auth, values.email, values.password);
         toast({ title: 'Success', description: 'Logged in successfully!' });
+        // The useAuth hook will handle redirection.
       } catch (error: any) {
-        toast({ variant: 'destructive', title: 'Error', description: error.message });
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+          // If user doesn't exist, create them for the prototype
+          try {
+            await createUserWithEmailAndPassword(auth, values.email, values.password);
+            toast({ title: 'Welcome!', description: 'Account created and logged in successfully!' });
+            // The useAuth hook will handle redirection.
+          } catch (creationError: any) {
+             toast({ variant: 'destructive', title: 'Login Error', description: "Could not log in. Please check your details." });
+          }
+        } else if (error.code === 'auth/wrong-password') {
+            toast({ variant: 'destructive', title: 'Login Error', description: "Incorrect password. Please try again." });
+        } else {
+          toast({ variant: 'destructive', title: 'Error', description: error.message });
+        }
       }
     });
   }
-
-  function handleGoogleSignIn() {
-    startTransition(async () => {
-      try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-        // The useAuth hook will handle the redirect.
-        toast({ title: 'Success', description: 'Logged in successfully with Google!' });
-      } catch (error: any) {
-        toast({ variant: 'destructive', title: 'Error', description: error.message });
-      }
-    });
-  }
-
+  
   return (
     <Card className="w-full max-w-sm shadow-2xl">
       <CardHeader>
@@ -123,11 +104,6 @@ export function LoginForm() {
             </Button>
           </form>
         </Form>
-        <Separator className="my-6" />
-        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isPending}>
-          <Chrome className="mr-2 h-4 w-4" />
-          Sign In with Google
-        </Button>
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
