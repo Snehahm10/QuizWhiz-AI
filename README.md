@@ -29,38 +29,76 @@ QuizWhiz AI is an intelligent, interactive, and user-friendly quiz application p
 -   **Icons**: [Lucide React](https://lucide.dev/)
 -   **Charts**: [Recharts](https://recharts.org/)
 
-## 🚀 Getting Started
+## 🚀 Getting the Code and Running Locally
 
-Follow these steps to get a local copy of the project up and running on your machine.
+Follow these steps to get the project from this environment onto your computer and push it to your GitHub repository.
 
 ### Prerequisites
 
 -   **Node.js**: Make sure you have Node.js version 18 or newer installed. You can download it from [nodejs.org](https://nodejs.org/).
--   **npm**: npm (Node Package Manager) is included with Node.js.
+-   **Git**: Make sure you have Git installed. You can download it from [git-scm.com](https://git-scm.com/).
+-   **A GitHub Account** and an empty repository ready to receive the code. Your repository URL is: `https://github.com/Snehahm10/MCQ-Generator-Firebase.git`
 
-### 1. Clone the Repository
+### Step 1: Set Up a Local Folder
 
-First, clone the project repository to your local machine using Git.
+Open the terminal or command prompt on your own computer and navigate to where you want to save the project.
 
 ```bash
-git clone https://github.com/your-username/quizwhiz-ai.git
-cd quizwhiz-ai
+# Create a new folder for your project and move into it
+mkdir MCQ-Generator-Firebase
+cd MCQ-Generator-Firebase
 ```
 
-### 2. Install Dependencies
+### Step 2: Initialize Git and Connect to GitHub
 
-Next, install all the necessary project dependencies using npm. This command reads the `package.json` file and downloads the required libraries.
+Now, turn this folder into a Git repository and tell it where your GitHub repository is.
 
 ```bash
+# Initialize a new Git repository
+git init
+
+# Set the main branch name (optional but good practice)
+git branch -M main
+
+# Add your GitHub repository as the remote origin
+git remote add origin https://github.com/Snehahm10/MCQ-Generator-Firebase.git
+```
+*If you get an error that the remote already exists, run this command instead:* `git remote set-url origin https://github.com/Snehahm10/MCQ-Generator-Firebase.git`
+
+### Step 3: Pull the Code From Firebase Studio
+
+This is the key step. You will pull all the project files from this environment directly into your local folder.
+
+```bash
+# This special URL points to this project's repository
+git pull https://source.cloud.google.com/p/quizwhiz-ai-55j1g/r/studio-project-Snehahm10-MCQ-Generator main --allow-unrelated-histories
+```
+*If that command fails with a "fatal: unable to update url base from redirection" error, it means you may not be authenticated correctly. Please ensure you are logged in with the same Google account you are using for Firebase Studio.*
+
+### Step 4: Push the Code to Your GitHub
+
+After the pull is successful, all the files will be on your computer. Now, send them up to your GitHub repository.
+
+```bash
+git push -u origin main
+```
+*You may need to use `git push --force -u origin main` if the repository on GitHub is not completely empty.*
+
+### Step 5: Install Dependencies and Run
+
+Once the code is on your computer and on GitHub, you're ready to run it.
+
+```bash
+# Install all the necessary packages
 npm install
 ```
 
-### 3. Set Up Environment Variables
+### Step 6: Set Up Environment Variables
 
-For the application to connect to Firebase and Google AI services, you need to provide your API keys and configuration details.
+For the application to connect to Firebase and Google AI services, you need to provide your API keys.
 
-1.  Create a new file named `.env` in the root directory of your project.
-2.  Copy the following content into the `.env` file and replace the placeholder values with your actual credentials.
+1.  Create a new file named `.env` in the root of your project.
+2.  Copy the following content into it and replace the placeholders with your actual credentials.
 
 ```env
 # Firebase Configuration
@@ -77,25 +115,12 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="your-sender-id"
 GEMINI_API_KEY="your-google-ai-api-key"
 ```
 
-*Note: The project also has a fallback Firebase configuration in `src/lib/firebase.ts`. However, using a `.env` file is the recommended and more secure approach.*
-
-### 4. Run the Development Server
-
-Now you're ready to start the application. Run the following command to launch the development server:
+### Step 7: Run the Development Server
 
 ```bash
 npm run dev
 ```
-
-This command starts the Next.js application with Turbopack for faster performance. It also starts the Genkit AI flows required for generating quiz questions.
-
-### 5. Open the Application
-
-Once the server is running, you'll see a message in your terminal. Open your web browser and navigate to:
-
-[http://localhost:9002](http://localhost:9002)
-
-You should now see the QuizWhiz AI login page. You can create an account and start using the app!
+Open your web browser to [http://localhost:9002](http://localhost:9002) to see your application running!
 
 ## 📂 Project Structure
 
