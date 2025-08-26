@@ -3,12 +3,13 @@ import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  "projectId": "quizwhiz-ai-55j1g",
+  "appId": "1:597947709281:web:403ed6a46f2d12d350b720",
+  "storageBucket": "quizwhiz-ai-55j1g.firebasestorage.app",
+  "apiKey": "AIzaSyA5gd7OT8NFhxIGG6O-AEz29ndqp-urJAM",
+  "authDomain": "quizwhiz-ai-55j1g.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "597947709281"
 };
 
 // Initialize Firebase
