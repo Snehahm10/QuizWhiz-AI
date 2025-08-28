@@ -67,7 +67,7 @@ export default function QuizApp() {
     });
   }, [settings, toast]);
   
-  const updateGlobalStats = (finalScore: number) => {
+  const updateGlobalStats = useCallback((finalScore: number) => {
     if (!user) return;
   
     const today = new Date().toISOString();
@@ -93,6 +93,7 @@ export default function QuizApp() {
     localStorage.setItem(weeklyKey, JSON.stringify(updatedWeekly));
       
     const leaderboardKey = `leaderboard_global`;
+    // Read the latest value from localStorage inside the function
     const storedLeaderboard = JSON.parse(localStorage.getItem(leaderboardKey) || '[]');
       
     const userIndex = storedLeaderboard.findIndex((u: any) => u.name === userName);
@@ -103,12 +104,12 @@ export default function QuizApp() {
     }
     const sortedLeaderboard = storedLeaderboard.sort((a: any, b: any) => b.score - a.score).map((u: any, i: number) => ({ ...u, rank: i + 1 }));
     localStorage.setItem(leaderboardKey, JSON.stringify(sortedLeaderboard));
-  };
+  }, [user, settings.subject]);
 
   const handleFinishQuiz = useCallback(() => {
     updateGlobalStats(score);
     setQuizState('completed');
-  }, [score, settings.subject, user]);
+  }, [score, updateGlobalStats]);
 
 
   const handleNextQuestion = useCallback(() => {
