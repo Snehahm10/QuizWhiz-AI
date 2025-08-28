@@ -44,24 +44,25 @@ export default function QuizCard({
   const progress = (questionNumber / totalQuestions) * 100;
 
   useEffect(() => {
-    setTimeLeft(QUESTION_TIME_LIMIT); // Reset timer for each new question
-    
+    setTimeLeft(QUESTION_TIME_LIMIT);
+  
     if (isSubmitted) {
-      return; // Stop the timer if answer is submitted
+      return;
     }
-
+  
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
           clearInterval(timer);
-          onNextQuestion(); // Move to next question when time is up
+          // Defer the state update to the next tick to avoid the warning
+          setTimeout(() => onNextQuestion(), 0);
           return 0;
         }
         return prevTime - 1;
       });
     }, 1000);
-
-    return () => clearInterval(timer); // Cleanup timer on component unmount or re-render
+  
+    return () => clearInterval(timer);
   }, [mcq.question, isSubmitted, onNextQuestion]);
   
 
