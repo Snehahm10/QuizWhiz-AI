@@ -51,7 +51,6 @@ export default function QuizApp() {
       try {
         const generatedQuestions: Mcq[] = [];
         const questionTexts: string[] = [];
-        // For the sake of speed in the prototype, let's just generate one question to start.
         const newQuestion = await generateMcqAction({ ...settings, previousQuestions: [] });
         generatedQuestions.push(newQuestion);
 
@@ -68,8 +67,6 @@ export default function QuizApp() {
     });
   }, [settings, toast]);
   
-  // This function is now defined inside the component to be used by handleFinishQuiz
-  // It reads from localStorage directly to avoid stale closures.
   const updateGlobalStats = (finalScore: number) => {
     if (!user) return;
   
@@ -78,7 +75,6 @@ export default function QuizApp() {
     const userName = user.displayName || user.email?.split('@')[0] || 'Anonymous';
     const userAvatar = user.photoURL || `https://i.pravatar.cc/150?u=${userId}`;
   
-    // --- Update History (per-user) ---
     const historyKey = `quizHistory_${userId}`;
     const storedHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
     const newHistoryItem = {
@@ -90,14 +86,12 @@ export default function QuizApp() {
     const newHistory = [newHistoryItem, ...storedHistory];
     localStorage.setItem(historyKey, JSON.stringify(newHistory));
   
-    // --- Update Weekly Progress (Global) ---
     const weeklyKey = `weeklyProgress_global`;
     const newScoreData: ScoreData = { score: finalScore * 10, date: today, user: userName };
     const storedWeekly = JSON.parse(localStorage.getItem(weeklyKey) || '[]') as ScoreData[];
     const updatedWeekly = [...storedWeekly, newScoreData];
     localStorage.setItem(weeklyKey, JSON.stringify(updatedWeekly));
       
-    // --- Update Leaderboard (Global) ---
     const leaderboardKey = `leaderboard_global`;
     const storedLeaderboard = JSON.parse(localStorage.getItem(leaderboardKey) || '[]');
       
@@ -142,7 +136,6 @@ export default function QuizApp() {
                 title: "Error fetching next question",
                 description: (error as Error).message,
             });
-            // Try to recover or end quiz
             setQuizState('in-progress');
         }
     });

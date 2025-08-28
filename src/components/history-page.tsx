@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -37,7 +38,7 @@ export default function HistoryPage() {
   }
 
   if (!isMounted) {
-    return null; // or a loading skeleton
+    return null;
   }
 
   return (
