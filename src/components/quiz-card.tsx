@@ -45,11 +45,15 @@ export default function QuizCard({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
   const handleTimeEnd = useCallback(() => {
+    if (!isSubmitted) {
+      onSubmit();
+      setTimeout(() => onNextQuestion(), 2000); 
+    } else {
       onNextQuestion();
-  }, [onNextQuestion]);
+    }
+  }, [isSubmitted, onSubmit, onNextQuestion]);
 
   useEffect(() => {
-    // Clear any existing timer when the question changes or answer is submitted
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -58,25 +62,21 @@ export default function QuizCard({
       return;
     }
   
-    // Reset timer for the new question
     setTimeLeft(QUESTION_TIME_LIMIT);
   
-    // Start a new timer
     timerRef.current = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
           if (timerRef.current) {
               clearInterval(timerRef.current);
           }
-          // Use a timeout to ensure state update happens after render
-          setTimeout(handleTimeEnd, 0); 
+          handleTimeEnd();
           return 0;
         }
         return prevTime - 1;
       });
     }, 1000);
   
-    // Cleanup function to clear interval on unmount
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
