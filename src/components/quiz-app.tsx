@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useTransition, useCallback, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { type QuizSettings } from '@/lib/constants';
 import { generateMcqAction, type Mcq } from '@/app/quiz/actions';
@@ -13,7 +14,7 @@ import QuizResults from './quiz-results';
 
 const TOTAL_QUESTIONS = 10;
 
-type QuizState = 'not-started' | 'loading' | 'in-progress' | 'completed';
+type QuizState = 'not-started' | 'loading-initial' | 'in-progress' | 'loading-next' | 'completed';
 
 export interface ScoreData {
   score: number;
@@ -34,12 +35,12 @@ export default function QuizApp() {
   const [score, setScore] = useState<number>(0);
   const [quizState, setQuizState] = useState<QuizState>('not-started');
   
-  const [isLoading, startTransition] = useTransition();
+  const [isGenerating, startTransition] = useTransition();
   const { toast } = useToast();
   const { user } = useAuth();
 
   const handleStartQuiz = useCallback(() => {
-    setQuizState('loading');
+    setQuizState('loading-initial');
     setIsSubmitted(false);
     setSelectedAnswer(null);
     setQuestions([]);
@@ -50,11 +51,10 @@ export default function QuizApp() {
       try {
         const generatedQuestions: Mcq[] = [];
         const questionTexts: string[] = [];
-        for (let i = 0; i < TOTAL_QUESTIONS; i++) {
-          const newQuestion = await generateMcqAction({ ...settings, previousQuestions: questionTexts });
-          generatedQuestions.push(newQuestion);
-          questionTexts.push(newQuestion.question);
-        }
+        // For the sake of speed in the prototype, let's just generate one question to start.
+        const newQuestion = await generateMcqAction({ ...settings, previousQuestions: [] });
+        generatedQuestions.push(newQuestion);
+
         setQuestions(generatedQuestions);
         setQuizState('in-progress');
       } catch (error) {
@@ -115,14 +115,39 @@ export default function QuizApp() {
 
 
   const handleNextQuestion = useCallback(() => {
-    setIsSubmitted(false);
-    setSelectedAnswer(null);
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
+    if (currentQuestionIndex >= TOTAL_QUESTIONS - 1) {
       handleFinishQuiz();
+      return;
     }
-  }, [currentQuestionIndex, questions.length, handleFinishQuiz]);
+
+    setQuizState('loading-next');
+    
+    startTransition(async () => {
+        try {
+            const questionTexts = questions.map(q => q.question);
+            const newQuestion = await generateMcqAction({ ...settings, previousQuestions: questionTexts });
+            
+            // This needs to happen in the next render cycle after state update
+            setTimeout(() => {
+                 setQuestions(prev => [...prev, newQuestion]);
+                 setCurrentQuestionIndex(prev => prev + 1);
+                 setIsSubmitted(false);
+                 setSelectedAnswer(null);
+                 setQuizState('in-progress');
+            }, 0);
+
+        } catch (error) {
+             toast({
+                variant: "destructive",
+                title: "Error fetching next question",
+                description: (error as Error).message,
+            });
+            // Try to recover or end quiz
+            setQuizState('in-progress');
+        }
+    });
+
+  }, [currentQuestionIndex, handleFinishQuiz, questions, settings, toast]);
 
   const handleSubmitAnswer = useCallback(() => {
     if (selectedAnswer === null) {
@@ -139,22 +164,22 @@ export default function QuizApp() {
     setIsSubmitted(true);
   }, [selectedAnswer, toast, questions, currentQuestionIndex]);
 
+  const isLoading = quizState === 'loading-initial' || quizState === 'loading-next';
   const mcq = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / TOTAL_QUESTIONS) * 100;
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-8">
-      {quizState !== 'in-progress' && quizState !== 'loading' && (
+      {quizState === 'not-started' || quizState === 'completed' ? (
          <QuizSettingsComponent
           settings={settings}
           onSettingsChange={setSettings}
           onStartQuiz={handleStartQuiz}
-          isLoading={isLoading}
+          isLoading={isGenerating}
           isQuizActive={quizState === 'in-progress'}
         />
-      )}
+      ) : null}
 
-      {quizState === 'loading' && <QuizSkeleton />}
+      {(quizState === 'loading-initial' || quizState === 'loading-next') && <QuizSkeleton />}
       
       {quizState === 'in-progress' && mcq && (
         <>
@@ -179,7 +204,7 @@ export default function QuizApp() {
         <QuizResults
           score={score}
           totalQuestions={TOTAL_QUESTIONS}
-          onRestart={handleStartQuiz}
+          onRestart={() => setQuizState('not-started')}
         />
       )}
     </div>

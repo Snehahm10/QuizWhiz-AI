@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -42,28 +42,47 @@ export default function QuizCard({
   const isCorrect = selectedAnswer === mcq.correctAnswerIndex;
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_LIMIT);
   const progress = (questionNumber / totalQuestions) * 100;
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const handleTimeEnd = useCallback(() => {
+      onNextQuestion();
+  }, [onNextQuestion]);
 
   useEffect(() => {
-    setTimeLeft(QUESTION_TIME_LIMIT);
+    // Clear any existing timer when the question changes or answer is submitted
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
   
     if (isSubmitted) {
       return;
     }
   
-    const timer = setInterval(() => {
+    // Reset timer for the new question
+    setTimeLeft(QUESTION_TIME_LIMIT);
+  
+    // Start a new timer
+    timerRef.current = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
-          clearInterval(timer);
-          // Defer the state update to the next tick to avoid the warning
-          setTimeout(() => onNextQuestion(), 0);
+          if (timerRef.current) {
+              clearInterval(timerRef.current);
+          }
+          // Use a timeout to ensure state update happens after render
+          setTimeout(handleTimeEnd, 0); 
           return 0;
         }
         return prevTime - 1;
       });
     }, 1000);
   
-    return () => clearInterval(timer);
-  }, [mcq.question, isSubmitted, onNextQuestion]);
+    // Cleanup function to clear interval on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [mcq.question, isSubmitted, handleTimeEnd]);
   
 
   return (
