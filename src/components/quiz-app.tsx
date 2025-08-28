@@ -68,48 +68,51 @@ export default function QuizApp() {
     });
   }, [settings, toast]);
   
-  const handleFinishQuiz = useCallback(() => {
-    if (!user) return; // Should not happen if called from the quiz
-    
-    const finalScore = score;
+  // This function is now defined inside the component to be used by handleFinishQuiz
+  // It reads from localStorage directly to avoid stale closures.
+  const updateGlobalStats = (finalScore: number) => {
+    if (!user) return;
+  
     const today = new Date().toISOString();
     const userId = user.uid;
     const userName = user.displayName || user.email?.split('@')[0] || 'Anonymous';
     const userAvatar = user.photoURL || `https://i.pravatar.cc/150?u=${userId}`;
-
-
+  
     // --- Update History (per-user) ---
     const historyKey = `quizHistory_${userId}`;
+    const storedHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
     const newHistoryItem = {
       date: today,
       subject: settings.subject,
       score: finalScore,
       total: TOTAL_QUESTIONS,
     };
-    const storedHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
     const newHistory = [newHistoryItem, ...storedHistory];
     localStorage.setItem(historyKey, JSON.stringify(newHistory));
-
+  
     // --- Update Weekly Progress (Global) ---
     const weeklyKey = `weeklyProgress_global`;
     const newScoreData: ScoreData = { score: finalScore * 10, date: today, user: userName };
     const storedWeekly = JSON.parse(localStorage.getItem(weeklyKey) || '[]') as ScoreData[];
     const updatedWeekly = [...storedWeekly, newScoreData];
     localStorage.setItem(weeklyKey, JSON.stringify(updatedWeekly));
-    
+      
     // --- Update Leaderboard (Global) ---
     const leaderboardKey = `leaderboard_global`;
     const storedLeaderboard = JSON.parse(localStorage.getItem(leaderboardKey) || '[]');
-    
+      
     const userIndex = storedLeaderboard.findIndex((u: any) => u.name === userName);
     if (userIndex > -1) {
-        storedLeaderboard[userIndex].score += finalScore * 10;
+      storedLeaderboard[userIndex].score += finalScore * 10;
     } else {
-        storedLeaderboard.push({ name: userName, avatar: userAvatar, score: finalScore * 10 });
+      storedLeaderboard.push({ name: userName, avatar: userAvatar, score: finalScore * 10 });
     }
     const sortedLeaderboard = storedLeaderboard.sort((a: any, b: any) => b.score - a.score).map((u: any, i: number) => ({ ...u, rank: i + 1 }));
     localStorage.setItem(leaderboardKey, JSON.stringify(sortedLeaderboard));
-    
+  };
+
+  const handleFinishQuiz = useCallback(() => {
+    updateGlobalStats(score);
     setQuizState('completed');
   }, [score, settings.subject, user]);
 
@@ -127,14 +130,11 @@ export default function QuizApp() {
             const questionTexts = questions.map(q => q.question);
             const newQuestion = await generateMcqAction({ ...settings, previousQuestions: questionTexts });
             
-            // This needs to happen in the next render cycle after state update
-            setTimeout(() => {
-                 setQuestions(prev => [...prev, newQuestion]);
-                 setCurrentQuestionIndex(prev => prev + 1);
-                 setIsSubmitted(false);
-                 setSelectedAnswer(null);
-                 setQuizState('in-progress');
-            }, 0);
+            setQuestions(prev => [...prev, newQuestion]);
+            setCurrentQuestionIndex(prev => prev + 1);
+            setIsSubmitted(false);
+            setSelectedAnswer(null);
+            setQuizState('in-progress');
 
         } catch (error) {
              toast({

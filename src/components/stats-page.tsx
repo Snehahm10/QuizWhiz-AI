@@ -60,7 +60,7 @@ export default function StatsPage() {
       </header>
       <div className="grid md:grid-cols-2 gap-8 mt-8 animate-fade-in">
         <Leaderboard data={leaderboardData} />
-        <WeeklyProgressChart data={weeklyData} leaderboard={leaderboardData} />
+        <WeeklyProgressChart data={weeklyData} leaderboard={leaderboardData.map(u => ({name: u.name, score: u.score, rank: u.rank, avatar: u.avatar}))} />
       </div>
     </div>
   );
